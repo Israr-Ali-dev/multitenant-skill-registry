@@ -1,0 +1,24 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+# SQLAlchemy's async engine bridges to sync DBAPI calls via greenlet; without
+# this, coverage.py's tracer can't see into that context and under-reports
+# every line that runs inside it (which is most of app/domain and
+# app/repositories, since they all await DB calls).
+concurrency = ["greenlet"]
