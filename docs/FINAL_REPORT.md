@@ -1,16 +1,14 @@
 # Final Report
 
-_Fill in immediately before submission — see evaluation brief section 8._
+**Repository URL:** https://github.com/Israr-Ali-dev/multitenant-skill-registry
 
-**Repository URL:**
+**Start time:** 2026-08-27 20:37 +05:00 (first commit)
 
-**Start time:**
+**Finish time:** 2026-08-28 14:07 +05:00
 
-**Finish time:**
+**Approximate hours:** ~4 hours (Claude Code used as a pair-programming/implementation assistant throughout, per "AI tools used" below — wall-clock span between first and last commit is wider due to an overnight gap, but hands-on working time was roughly 3–5 hours)
 
-**Approximate hours:**
-
-**Final commit SHA:**
+**Final commit SHA:** `ca6bfcf240f6828d6e56f251d52c75c1dcba5551` (implementation + docs complete as of this commit; this report is committed immediately after it — run `git log -1` on the repository for the literal final SHA at submission time)
 
 ---
 
