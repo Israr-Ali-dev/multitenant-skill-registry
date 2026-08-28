@@ -4,7 +4,7 @@ Captured verbatim from `make test` (`docker compose -f docker-compose.yml -f doc
 
 **Result: 44 passed, 0 failed. 95% line coverage on `app/`.**
 
-All 10 mandatory tests from the evaluation brief (section 6) are covered — see the mapping in [PLAN.md](../PLAN.md#6-test-plan) — plus the isolation/auth/RLS/unit extras described there.
+All 10 mandatory tests from the evaluation brief are covered by name in the run below (`test_same_org_create_and_read_succeeds`, `test_cross_org_read_denied`, `test_cross_org_update_denied`, `test_non_owner_activation_denied`, `test_draft_skill_excluded_from_runtime`, `test_disabled_skill_excluded_from_runtime`, `test_active_version_is_immutable`, `test_duplicate_activation_is_idempotent`, `test_destructive_tool_is_rejected`, `test_audit_record_contains_org_actor_event_version`), plus the isolation/auth/RLS/unit extras in `tests/security/` and `tests/unit/`.
 
 ```
  Container multitenant-skill-registry-postgres-1  Running

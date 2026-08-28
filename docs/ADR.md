@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-Numbered decisions for the Organization-Scoped Skill Registry vertical slice. See [PLAN.md](../PLAN.md) for the full design rationale these summarize.
+Numbered decisions for the Organization-Scoped Skill Registry vertical slice.
 
 ## ADR-1: PostgreSQL 16, not SQLite
 

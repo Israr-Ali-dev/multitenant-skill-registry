@@ -1,6 +1,6 @@
 # Organization-Scoped Skill Registry — Vertical Slice
 
-A privacy-first, multi-tenant backend where organizations draft, review, and activate their own "AI COO" skills — with strict organization-level isolation and immutable version history. Built for the Jarvis AI COO developer evaluation; see [PLAN.md](PLAN.md) for the full design plan and [docs/ADR.md](docs/ADR.md) for the architecture decisions behind it.
+A privacy-first, multi-tenant backend where organizations draft, review, and activate their own "AI COO" skills — with strict organization-level isolation and immutable version history. Built for the Jarvis AI COO developer evaluation; see [docs/ADR.md](docs/ADR.md) for the architecture decisions behind it.
 
 ## Stack
 
@@ -32,6 +32,39 @@ Tear everything down (including the database volume):
 ```bash
 make down
 ```
+
+## Docker setup
+
+Everything runs in containers — no local Python/Postgres install needed, just Docker and Docker Compose. [docker-compose.yml](docker-compose.yml) defines four services, chained via `depends_on`:
+
+| Service | What it does |
+|---|---|
+| `postgres` | Postgres 16, exposed on `5432`, backed by a named volume (`pgdata`) so data survives container restarts |
+| `migrate` | Runs `alembic upgrade head` (schema + RLS policies/triggers) against the superuser role, then exits |
+| `seed` | Runs `scripts/seed_fixtures.py` (idempotent — skips orgs that already exist), then exits |
+| `api` | The FastAPI app itself (`uvicorn app.main:app`), exposed on `8000` |
+
+`make up` is shorthand for building all four images and bringing them up in the right order; the [Makefile](Makefile) targets map directly to plain `docker compose` commands if you'd rather run them yourself:
+
+```bash
+docker compose build                        # build all images
+docker compose run --rm migrate             # apply migrations only
+docker compose run --rm seed                # seed fixtures only
+docker compose up -d api                    # start just the API (after migrate has run)
+docker compose logs -f api                  # tail API logs
+docker compose ps                           # see what's running
+```
+
+**After changing code**, rebuild and restart the `api` image for the change to take effect:
+
+```bash
+docker compose build api
+docker compose up -d api
+```
+
+(`migrate` runs again automatically as `api`'s dependency — this is a no-op if the schema is already at `head`, so it won't disturb existing data.)
+
+**Tests use a separate Postgres session state, not a separate container.** `make test` (see below) reuses the *same* `postgres` service/volume as `make up` via [docker-compose.test.yml](docker-compose.test.yml) as a compose override — the test suite manages its own schema/data during the run, which will clear out your fixture data. If you've been testing manually (via Swagger/curl) and then run `make test`, run `make seed` again afterward to restore the fixture users.
 
 ## Fixture organizations
 
