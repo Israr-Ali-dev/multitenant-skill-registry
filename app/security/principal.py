@@ -10,7 +10,8 @@ from a JWT claim that was itself only ever written server-side at login.
 from dataclasses import dataclass
 from uuid import UUID
 
-from fastapi import Depends, Header
+from fastapi import Depends, Security
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,6 +19,14 @@ from app.core.errors import UnauthorizedError
 from app.db.models.user import User
 from app.db.session import get_db_session, set_rls_org_context
 from app.security.jwt import TokenError, decode_access_token
+
+# Registers a proper OpenAPI security scheme so Swagger UI shows a single
+# "Authorize" button (paste the access_token from POST /auth/login) instead
+# of requiring the Authorization header to be typed into every operation.
+# auto_error=False so a missing/malformed header still falls through to our
+# own UnauthorizedError below (401), matching prior behavior exactly rather
+# than HTTPBearer's default 403 on a bad scheme.
+bearer_scheme = HTTPBearer(auto_error=False)
 
 
 @dataclass(frozen=True)
@@ -29,13 +38,13 @@ class Principal:
 
 
 async def get_current_principal(
-    authorization: str | None = Header(default=None),
+    credentials: HTTPAuthorizationCredentials | None = Security(bearer_scheme),
     db: AsyncSession = Depends(get_db_session),
 ) -> Principal:
-    if not authorization or not authorization.lower().startswith("bearer "):
+    if credentials is None:
         raise UnauthorizedError("Missing or malformed Authorization header.")
 
-    token = authorization.split(" ", 1)[1].strip()
+    token = credentials.credentials.strip()
     try:
         claims = decode_access_token(token)
     except TokenError as exc:
