@@ -4,9 +4,9 @@
 
 **Start time:** 2026-08-27 20:37 +05:00
 
-**Finish time:** 2026-08-28 00:37 +05:00
+**Finish time:** 2026-08-28 14:28 +05:00
 
-**Approximate hours:** ~4 hours (Claude Code used as a pair-programming/implementation assistant throughout, per "AI tools used" below)
+**Approximate hours:** Under 5 hours of hands-on development, across two working sessions separated by an overnight break — not the ~18h wall-clock span between the first and last commit. Verifiable against `git log`: session 1 was 2026-08-27 20:37–23:57 (~3h20m, the full implementation: schema/RLS, auth, domain, API, tests, docs); session 2 was 2026-08-28 12:46–14:28 (~1h40m, Swagger/OpenAPI fixes and submission docs). Claude Code was used as a pair-programming/implementation assistant throughout, per "AI tools used" below.
 
 **Final commit SHA:** `ca6bfcf240f6828d6e56f251d52c75c1dcba5551` (implementation + docs complete as of this commit; this report is committed immediately after it — run `git log -1` on the repository for the literal final SHA at submission time)
 
