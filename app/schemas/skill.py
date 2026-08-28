@@ -8,13 +8,25 @@ SLUG_PATTERN = r"^[a-z0-9]+(-[a-z0-9]+)*$"
 
 
 class SkillCreateRequest(BaseModel):
-    slug: str = Field(..., min_length=1, max_length=150, pattern=SLUG_PATTERN)
-    name: str = Field(..., min_length=1, max_length=200)
-    description: str | None = None
-    department_slug: str | None = None
-    instructions: str = Field(..., min_length=1)
-    model_params: dict = Field(default_factory=dict)
-    requested_tools: list[str] = Field(default_factory=list)
+    slug: str = Field(
+        ..., min_length=1, max_length=150, pattern=SLUG_PATTERN, examples=["weekly-ops-report"]
+    )
+    name: str = Field(..., min_length=1, max_length=200, examples=["Weekly Ops Report"])
+    description: str | None = Field(
+        default=None, examples=["Compiles the weekly site status into a structured report."]
+    )
+    # Matches the department seeded for abc-construction in scripts/seed_fixtures.py
+    # (xyz-builders' seeded department is "field-ops").
+    department_slug: str | None = Field(default=None, examples=["operations"])
+    instructions: str = Field(
+        ...,
+        min_length=1,
+        examples=["Compile the weekly site status into a structured report."],
+    )
+    model_params: dict = Field(default_factory=dict, examples=[{}])
+    requested_tools: list[str] = Field(
+        default_factory=list, examples=[["reports.generate", "docs.read"]]
+    )
 
     # Deliberately NOT accepted: organization_id. If a client sends one, Pydantic
     # ignores unknown fields by default; the tenant is always the caller's own
@@ -23,14 +35,18 @@ class SkillCreateRequest(BaseModel):
 
 
 class SkillVersionCreateRequest(BaseModel):
-    instructions: str = Field(..., min_length=1)
-    model_params: dict = Field(default_factory=dict)
-    requested_tools: list[str] = Field(default_factory=list)
+    instructions: str = Field(
+        ...,
+        min_length=1,
+        examples=["Compile the weekly site status into a structured report, v2."],
+    )
+    model_params: dict = Field(default_factory=dict, examples=[{}])
+    requested_tools: list[str] = Field(default_factory=list, examples=[["reports.generate"]])
 
 
 class ReviewRequest(BaseModel):
-    decision: Literal["approve", "reject"]
-    notes: str | None = None
+    decision: Literal["approve", "reject"] = Field(..., examples=["approve"])
+    notes: str | None = Field(default=None, examples=["Looks good, approved for activation."])
 
 
 class SkillVersionOut(BaseModel):

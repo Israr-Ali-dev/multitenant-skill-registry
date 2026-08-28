@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db_session
@@ -11,7 +11,7 @@ router = APIRouter()
 
 @router.get("/skills", response_model=list[RuntimeSkillOut])
 async def runtime_skills(
-    department: str | None = None,
+    department: str | None = Query(default=None, examples=["operations"]),
     principal: Principal = Depends(get_current_principal),
     db: AsyncSession = Depends(get_db_session),
 ) -> list[RuntimeSkillOut]:

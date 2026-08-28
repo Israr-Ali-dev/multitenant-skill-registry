@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import require_admin_or_owner, require_owner
@@ -48,8 +48,8 @@ async def create_skill(
 
 @router.get("", response_model=list[SkillOut])
 async def list_skills(
-    status_filter: str | None = None,
-    department: str | None = None,
+    status_filter: str | None = Query(default=None, examples=["draft"]),
+    department: str | None = Query(default=None, examples=["operations"]),
     principal: Principal = Depends(get_current_principal),
     db: AsyncSession = Depends(get_db_session),
 ) -> list[SkillOut]:
