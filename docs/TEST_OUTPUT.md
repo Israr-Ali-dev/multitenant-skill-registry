@@ -1,17 +1,15 @@
 # Test Output
 
-Captured verbatim from `make test` (`docker compose -f docker-compose.yml -f docker-compose.test.yml up --abort-on-container-exit test`), run against a disposable Postgres 16 container from a clean `docker compose down -v`. Docker Compose log prefixes stripped for readability; content otherwise unedited.
+Captured verbatim from `make test` (`docker compose -f docker-compose.yml -f docker-compose.test.yml run --rm test`), run against a disposable Postgres 16 container. Docker Compose log prefixes stripped for readability; content otherwise unedited. Re-captured against `main` at `619f2ce` (after the HTTPBearer security-scheme and Swagger-example fixes) — numbers are unchanged from the original capture, confirming those were doc/OpenAPI-only changes with no behavioral impact.
 
 **Result: 44 passed, 0 failed. 95% line coverage on `app/`.**
 
 All 10 mandatory tests from the evaluation brief (section 6) are covered — see the mapping in [PLAN.md](../PLAN.md#6-test-plan) — plus the isolation/auth/RLS/unit extras described there.
 
 ```
-Attaching to multitenant-skill-registry-test-1
+ Container multitenant-skill-registry-postgres-1  Running
 INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
 INFO  [alembic.runtime.migration] Will assume transactional DDL.
-INFO  [alembic.runtime.migration] Running upgrade  -> 0001, Initial tenant-scoped schema.
-INFO  [alembic.runtime.migration] Running upgrade 0001 -> 0002, Row-Level Security + immutability/append-only triggers.
 ============================= test session starts ==============================
 platform linux -- Python 3.12.14, pytest-8.3.3, pluggy-1.6.0 -- /usr/local/bin/python3.12
 cachedir: .pytest_cache
@@ -75,7 +73,7 @@ app/api/__init__.py                      0      0   100%
 app/api/deps.py                         12      3    75%   11-16
 app/api/v1/__init__.py                   8      0   100%
 app/api/v1/audit.py                     13      0   100%
-app/api/v1/auth.py                      29      3    90%   47-51
+app/api/v1/auth.py                      30      3    90%   48-52
 app/api/v1/health.py                     9      3    67%   11-13
 app/api/v1/runtime.py                   11      0   100%
 app/api/v1/skills.py                    40      0   100%
@@ -118,12 +116,14 @@ app/security/hashing.py                 12      2    83%   16-17
 app/security/jwt.py                     18      0   100%
 app/security/principal.py               37      3    92%   48-49, 65
 ------------------------------------------------------------------
-TOTAL                                  791     40    95%
+TOTAL                                  792     40    95%
 
-======================= 44 passed, 4 warnings in 24.72s ========================
+======================= 44 passed, 4 warnings in 24.88s ========================
 ```
 
 Notes on what's omitted above: three `UserWarning`s from Pydantic about the `model_params` field name colliding with its "protected namespace" convention (cosmetic; not a bug — silencing it would mean setting `protected_namespaces = ()` in the affected schemas) and one `DeprecationWarning` about `tests/conftest.py`'s custom `event_loop` fixture (used deliberately — see the comment at its definition — to keep the production engine and the test admin engine, both created once at import time, bound to a single event loop for the whole session; pytest-asyncio's per-test default loop would otherwise break every test after the first with "attached to a different loop"). `app/schemas/common.py`'s `ProblemDetail` model shows 0% because it documents the error response shape for OpenAPI but is never constructed directly in code — every error response is built in `app/core/errors.py` (93% covered) instead.
+
+`app/api/v1/auth.py` is now 30 statements (was 29) and `app/security/principal.py`'s coverage-excluded lines shifted slightly — both are the direct result of the `HTTPBearer` security-scheme change (see commit `7d25ee6`); no other file's statement count moved, confirming the rest of that change set (the two `docs(api):` commits) touched OpenAPI metadata only.
 
 ## Bugs this test run caught and fixed while building
 
