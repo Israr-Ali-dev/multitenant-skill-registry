@@ -4,7 +4,10 @@ from pydantic import BaseModel, Field
 class LoginRequest(BaseModel):
     organization_slug: str = Field(..., examples=["abc-construction"])
     email: str = Field(..., examples=["owner@abc-construction.test"])
-    password: str = Field(..., min_length=1, examples=["OwnerPass123!"])
+    # Matches the password `scripts/seed_fixtures.py` sets for every seeded
+    # fixture user, so Swagger UI's example is a working credential out of
+    # the box instead of a placeholder you have to overwrite each time.
+    password: str = Field(..., min_length=1, examples=["FixtureDemoPass123!"])
 
 
 class TokenResponse(BaseModel):
