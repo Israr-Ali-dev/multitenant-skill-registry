@@ -1,0 +1,18 @@
+services:
+  postgres:
+    ports: []
+
+  test:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      - ADMIN_DATABASE_URL=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-changeme-postgres-password}@postgres:5432/${POSTGRES_DB:-skill_registry}
+      - DATABASE_URL=postgresql+asyncpg://app_role:${APP_DB_PASSWORD:-changeme-app-role-password}@postgres:5432/${POSTGRES_DB:-skill_registry}
+      - JWT_SECRET=${JWT_SECRET:-changeme-dev-only-jwt-signing-secret}
+    command: >
+      sh -c "alembic upgrade head &&
+             pytest -v --cov=app --cov-report=term-missing"
